@@ -1,0 +1,1 @@
+/usr/bin/c++   -Wall -msse2 -mfpmath=sse -march=core2 -mtune=core2  -O3 -g  -rdynamic  -m64 CMakeFiles/ReadWriteNBenchSSB64.dir/ReadWriteNBench.cpp.o  -o ReadWriteNBenchSSB64 ../libstm/libstm64.a -lpthread -lrt 
