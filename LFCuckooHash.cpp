@@ -185,7 +185,6 @@ int CuckooHashTable::search(int key)
         h2 = hashTwo(key,getSizeTwo());
         //get address
         c = atomic_load(&tables[TABLEONE][h1]);
-	exit(2);
         //extracting address and count
         cOne=getCount(c);
         e= getAddress(c);
