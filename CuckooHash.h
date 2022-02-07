@@ -112,8 +112,8 @@ public:
    	int find(int key, CountPointer** p1, CountPointer** p2);
     void testInit();
     //Ancillary Functions
-    int getSizeOne();
-    int getSizeTwo();
+    const int getSizeOne();
+    const int getSizeTwo();
     int getSize(int table);
 
     //Constructor

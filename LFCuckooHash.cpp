@@ -14,18 +14,18 @@ void CuckooHashTable::init()
 
     for(int i=0;i<CuckooHashTable::getSizeOne();i++)
     {
-        table1[i]=makePointer(NULL,INIT);
+        table1[i]=makePointer(nullptr,INIT);
     }
     for(int i=0;i<CuckooHashTable::getSizeTwo();i++)
     {
-        table2[i]=makePointer(NULL,INIT);
+        table2[i]=makePointer(nullptr,INIT);
     }
-    operations=0;
+    operations=nullptr;
 
     fails=0;
 }
 //Get Size One
-int CuckooHashTable::getSizeOne()
+const int CuckooHashTable::getSizeOne()
 {
     return sOne;
 }
@@ -38,7 +38,7 @@ int CuckooHashTable::getSize(int table)
         return CuckooHashTable::getSizeTwo();
 }
 // Get Size of Table Two
-int CuckooHashTable::getSizeTwo()
+const int CuckooHashTable::getSizeTwo()
 {
     return sTwo;
 }
@@ -79,7 +79,7 @@ uint16_t getCount(CountPointer* ptr)
 }
 
 //Marking Least Significant Bit
-Entry* marking(Entry* ptr)
+Entry* marking(Entry const* ptr)
 {
     int k,v;
     k=ptr->key;
@@ -94,7 +94,7 @@ Entry* deMarking(Entry* ptr)
 {
     int k,v;
     Entry *e;
-    if(ptr!=NULL)
+    if(ptr!=nullptr)
     {
         k=ptr->key;
         v=ptr->value;
@@ -129,42 +129,42 @@ void CuckooHashTable::printTable()
 	printf("******************hash_table 1*****************\n");
 	int i;
 	CountPointer *e;
-	Entry* tmp=NULL;
+	Entry* tmp=nullptr;
 	for(i=0;i<getSizeOne();i++){
-		if(tables[TABLEONE][i] != NULL)
+		if(tables[TABLEONE][i] != nullptr)
             {
                 e = atomic_load_explicit(&tables[TABLEONE][i],memory_order_relaxed);
                 tmp = getAddress(e);
 
-                if(tmp != NULL)
+                if(tmp != nullptr)
                 {
                     printf("%d\t%d %d\n",i,tmp->key,tmp->value);
                     //cout<<getCount(e)<<endl;
                 }
                 else
                 {
-                    printf("%d\tNULL\n",i);
+                    printf("%d\tnullptr\n",i);
                 }
 
             }
 		else
-			printf("%d\tNULL\n",i);
+			printf("%d\tnullptr\n",i);
 
 	}
 	printf("****************hash_table 2*******************\n");
 	for(i=0;i<getSizeTwo();i++)
 	{
-		if(table2[i] != NULL)
+		if(table2[i] != nullptr)
             {
 			e = atomic_load_explicit(&tables[TABLETWO][i],memory_order_relaxed);
 			tmp = getAddress(e);
-            if(tmp != NULL)
+            if(tmp != nullptr)
                 printf("%d\t%d %d\n",i,tmp->key,tmp->value);
             else
                 printf("%d\t%p\n",i,e);
             }
 		else
-			printf("%d\tNULL\n",i);
+			printf("%d\tnullptr\n",i);
 	}
 	printf("\n");
 }
@@ -188,7 +188,7 @@ int CuckooHashTable::search(int key)
         //extracting address and count
         cOne=getCount(c);
         e= getAddress(c);
-        if (e!=NULL && e->key == key)
+        if (e!=nullptr && e->key == key)
         {
             //delete c;
             return e->value;
@@ -199,14 +199,14 @@ int CuckooHashTable::search(int key)
 
 		cTwo = getCount(c);
 		e= getAddress(c);
-        if (e!=NULL && e->key == key)
+        if (e!=nullptr && e->key == key)
             return e->value;
         //second round of query
         c = atomic_load(&tables[TABLEONE][h1]);
 
         cOneB=getCount(c);
         e= getAddress(c);
-        if (e!=NULL && e->key == key)
+        if (e!=nullptr && e->key == key)
         {
              return e->value;
         }
@@ -216,7 +216,7 @@ int CuckooHashTable::search(int key)
 
 		cTwoB = getCount(c);
 		e= getAddress(c);
-        if (e!=NULL && e->key == key)
+        if (e!=nullptr && e->key == key)
         {
               return e->value;
               //delete c;
@@ -255,7 +255,7 @@ int CuckooHashTable::find(int key,CountPointer** e1,CountPointer**e2)
         *e1=c1;
         cOne=getCount(c1);
         e= getAddress(c1);
-        if(e!=NULL)
+        if(e!=nullptr)
         {
             if(marked(e))
             {
@@ -273,7 +273,7 @@ int CuckooHashTable::find(int key,CountPointer** e1,CountPointer**e2)
 
         cTwo=getCount(c2);
         e= getAddress(c2);
-        if(e!=NULL)
+        if(e!=nullptr)
         {
             //If Marked Help with relocation
             if(marked(e))
@@ -309,7 +309,7 @@ int CuckooHashTable::find(int key,CountPointer** e1,CountPointer**e2)
 
         e= getAddress(c1);
 
-        if(e!=NULL)
+        if(e!=nullptr)
         {
             if(marked(e))
             {
@@ -328,7 +328,7 @@ int CuckooHashTable::find(int key,CountPointer** e1,CountPointer**e2)
         cTwoB=getCount(c2);
         e= getAddress(c2);
 
-        if(e!=NULL)
+        if(e!=nullptr)
         {
             if(marked(e))
             {
@@ -370,7 +370,7 @@ void CuckooHashTable::remove(int key)
     int h2 = hashTwo(key,getSizeTwo());
 
     CountPointer*c1,*c2;
-    c1=NULL; c2=NULL;
+    c1=nullptr; c2=nullptr;
     int countOne=0,countTwo=0;
     while(true)
     {
@@ -381,7 +381,7 @@ void CuckooHashTable::remove(int key)
         if(ret==FIRST)
         {
             countOne=getCount(c1);
-            if((&tables[TABLEONE][h1])->compare_exchange_strong(c1,makePointer(NULL,countOne)))
+            if((&tables[TABLEONE][h1])->compare_exchange_strong(c1,makePointer(nullptr,countOne)))
             {
                 //delete c1;
 				aSizes[TABLEONE]--;
@@ -396,7 +396,7 @@ void CuckooHashTable::remove(int key)
             if(tables[TABLEONE][h1]!=c1)
                 continue;
             countTwo=getCount(c2);
-            if((&tables[TABLETWO][h2])->compare_exchange_strong(c2,makePointer(NULL,countTwo)))
+            if((&tables[TABLETWO][h2])->compare_exchange_strong(c2,makePointer(nullptr,countTwo)))
             {
                 //delete c2;
 				aSizes[TABLETWO]--;
@@ -427,7 +427,7 @@ void CuckooHashTable::insert (int key,int value)
 			newNode= new Entry(key,value);
 	}*/
 		
-    //    newNode->compare_exchange_strong(NULL,new Entry(key,value));
+    //    newNode->compare_exchange_strong(nullptr,new Entry(key,value));
     CountPointer *cnt1,*cnt2,*temp;
 
     startInsert:
@@ -467,7 +467,7 @@ void CuckooHashTable::insert (int key,int value)
             }
         }
 
-        if(getAddress(cnt1)==NULL)
+        if(getAddress(cnt1)==nullptr)
         {
             countOne=getCount(cnt1);
             if(!(&tables[TABLEONE][h1])->compare_exchange_strong(cnt1,makePointer(newNode,countOne)))
@@ -486,7 +486,7 @@ void CuckooHashTable::insert (int key,int value)
                 return;
             }
         }
-        if(getAddress(cnt2)==NULL)
+        if(getAddress(cnt2)==nullptr)
         {
             countTwo=getCount(cnt2);
             if(!(&tables[TABLETWO][h2])->compare_exchange_strong(cnt2,makePointer(newNode,countTwo)))
@@ -543,8 +543,8 @@ bool CuckooHashTable::relocate(int which, int index)
     tbl=which;
     idx=index;preIDX=0;
 
-    CountPointer*pre=NULL,*c1,*c2;
-    Entry* e1=NULL,*preADDR=NULL,*e2;
+    CountPointer*pre=nullptr,*c1,*c2;
+    Entry* e1=nullptr,*preADDR=nullptr,*e2;
     int trials=0;
     int key=0;
     bool found=false;
@@ -581,7 +581,7 @@ bool CuckooHashTable::relocate(int which, int index)
                         delDup(preIDX,pre,idx,c1);
                     }
                 }
-                if(preADDR!=NULL&&e1!=NULL)
+                if(preADDR!=nullptr&&e1!=nullptr)
                 {
                     if(preADDR->key==e1->key)
                     {
@@ -597,7 +597,7 @@ bool CuckooHashTable::relocate(int which, int index)
                     }
                 }
 
-            if(e1!=NULL)
+            if(e1!=nullptr)
             {
                 route[depth]=idx;
                 key=e1->key;
@@ -626,14 +626,14 @@ bool CuckooHashTable::relocate(int which, int index)
                 helpRelocate(tbl,idx,false);
                 c1=atomic_load(&tables[tbl][idx]);
             }
-            if(e1==NULL)
+            if(e1==nullptr)
             {
                 continue;
             }
             int destIDX=(tbl==0)?hashTwo(key,getSizeTwo()):hashOne(key,getSizeOne());
             c2=atomic_load(&tables[1-tbl][destIDX]);
             e2=getAddress(c2);
-            if(e2!=NULL)
+            if(e2!=nullptr)
             {
                 startLevel=i+1;
                 idx=destIDX;
@@ -666,7 +666,7 @@ void CuckooHashTable::helpRelocate(int which,int index,bool initiator)
         countOne=getCount(src);
         temp=getAddress(src);
 
-        if(temp==NULL)
+        if(temp==nullptr)
         {
             return;
         }
@@ -695,13 +695,13 @@ void CuckooHashTable::helpRelocate(int which,int index,bool initiator)
         }
         if((&tables[1-which][hd])->compare_exchange_strong(dest,makePointer(deMarking(temp),nCount)))
         {
-            (&tables[which][index])->compare_exchange_strong(src,makePointer(NULL,countOne+1));
+            (&tables[which][index])->compare_exchange_strong(src,makePointer(nullptr,countOne+1));
 			aSizes[which]--;
             return;
         }
         if(dst==temp)
         {
-            (&tables[which][index])->compare_exchange_strong(src,makePointer(NULL,countOne+1));
+            (&tables[which][index])->compare_exchange_strong(src,makePointer(nullptr,countOne+1));
 			aSizes[which]--;
             return;
         }
@@ -712,7 +712,7 @@ void CuckooHashTable::helpRelocate(int which,int index,bool initiator)
 void CuckooHashTable::delDup(int iOne,CountPointer *e1,int iTwo,CountPointer *e2)
 {
     CountPointer*temp;
-    if(e1==NULL||e2==NULL)
+    if(e1==nullptr||e2==nullptr)
         return;
     if(e1!=tables[TABLEONE][iOne]&&e2!=tables[TABLETWO][iTwo])
         return;
@@ -720,7 +720,7 @@ void CuckooHashTable::delDup(int iOne,CountPointer *e1,int iTwo,CountPointer *e2
     if(getAddress(e1)->key!=getAddress(e2)->key)
         return;
 
-     temp=makePointer(NULL,getCount(e2));
+     temp=makePointer(nullptr,getCount(e2));
      (&tables[TABLETWO][iOne])->compare_exchange_strong(e2,temp);
 	 aSizes[TABLETWO]--;
      //delete temp;
@@ -738,12 +738,12 @@ void testInsertOne (int key,int value,CuckooHashTable*t)
     //int trials=0;
 
     Entry* newNode=new Entry(key,value);
-    if(newNode==NULL)
+    if(newNode==nullptr)
     {
         t->fails++;
         return;
     }
-    //    newNode->compare_exchange_strong(NULL,new Entry(key,value));
+    //    newNode->compare_exchange_strong(nullptr,new Entry(key,value));
     CountPointer *cnt1,*cnt2,*temp;
 	int result=t->find(key,&cnt1,&cnt2);
             countOne=getCount(cnt1);
@@ -776,12 +776,12 @@ void testInsertTwo (int key,int value,CuckooHashTable*t)
     int trials=0;
 
     Entry* newNode=new Entry(key,value);
-    if(newNode==NULL)
+    if(newNode==nullptr)
     {
         t->fails++;
         return;
     }
-    //    newNode->compare_exchange_strong(NULL,new Entry(key,value));
+    //    newNode->compare_exchange_strong(nullptr,new Entry(key,value));
     CountPointer *cnt1,*cnt2,*temp;
 	//	int result=find(key,&cnt1,&cnt2);
 	int result=t->find(key,&cnt1,&cnt2);
